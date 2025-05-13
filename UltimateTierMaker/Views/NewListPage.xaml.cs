@@ -11,4 +11,9 @@ public partial class NewListPage : ContentPage
     {
 		Shell.Current.GoToAsync("..");
     }
+
+    private void btnDone_Clicked(object sender, EventArgs e)
+    {
+        Shell.Current.GoToAsync(nameof(ListPage));
+    }
 }

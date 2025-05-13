@@ -6,9 +6,7 @@ using System.Threading.Tasks;
 
 namespace UltimateTierMaker.Models
 {
-    public class TierList
-    {   
-        public String Id { get; set; }
-        public List<Tier> List { get; set; }
+    internal class TierRepository
+    {
     }
 }

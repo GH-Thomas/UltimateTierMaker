@@ -65,6 +65,19 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Folder Include="Views\Controls\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Update="Views\HomePage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\ListPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	</ItemGroup>
+
+	<ItemGroup>
 	  <MauiXaml Update="Views\NewListPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

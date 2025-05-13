@@ -6,7 +6,7 @@
     <Grid RowDefinitions="*, *, Auto, Auto">
         <Entry Placeholder="List Name" Grid.Row="0"/>
         <Editor Placeholder="Description..." Grid.Row="1"/>
-        <Button Text="Done" Grid.Row="2"/>
+        <Button x:Name="btnDone" Text="Done" Grid.Row="2" Clicked="btnDone_Clicked"/>
         <Button x:Name="btnCancel" Text="Cancel" Grid.Row="3" Clicked="btnCancel_Clicked" />
     </Grid>
 </ContentPage>
