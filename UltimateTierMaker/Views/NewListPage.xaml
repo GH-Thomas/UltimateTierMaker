@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="UltimateTierMaker.Views.NewListPage"
+             Title="NewListPage">
+    <Grid RowDefinitions="*, *, Auto, Auto">
+        <Entry Placeholder="List Name" Grid.Row="0"/>
+        <Editor Placeholder="Description..." Grid.Row="1"/>
+        <Button Text="Done" Grid.Row="2"/>
+        <Button x:Name="btnCancel" Text="Cancel" Grid.Row="3" Clicked="btnCancel_Clicked" />
+    </Grid>
+</ContentPage>
