@@ -3,9 +3,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="UltimateTierMaker.Views.ComponentViews.ItemView">
     <VerticalStackLayout>
-        <Image Source="{Binding ImagePath}" />
+        <Image 
+            x:Name="itemImage" 
+            Source="" />
         <Label 
-            Text="{Binding ItemName}"
+            x:Name="itemLabel"
+            Text=""
             VerticalOptions="Center" 
             HorizontalOptions="Center" />
     </VerticalStackLayout>

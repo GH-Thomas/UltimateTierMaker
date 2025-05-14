@@ -3,22 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:components="clr-namespace:UltimateTierMaker.Views.ComponentViews"
              x:Class="UltimateTierMaker.Views.ComponentViews.TierListView">
-    <HorizontalStackLayout>
-        <Label 
-            Text="{Binding TierName}"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-        <ListView
-            x:Name="listItems"
-            BackgroundColor="Black"
-            SeparatorVisibility="None"
-            RowHeight="10">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <components:ItemView ItemName="{Binding Name}"
-                                         ImagePath="{Binding ImagePath}"/>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
-    </HorizontalStackLayout>
+    <VerticalStackLayout>
+        
+    </VerticalStackLayout>
 </ContentView>
