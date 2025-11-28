@@ -1,11 +1,10 @@
 namespace UltimateTierMaker.Views.ComponentViews;
-using UltimateTierMaker.Models;
 
 using TierModel = UltimateTierMaker.Models.Tier;
 
 public partial class TierView : ContentView
 {
-    public static readonly BindableProperty TierProperty = BindableProperty.Create(nameof(Tier), typeof(TierModel), typeof(TierView), null);
+    private static readonly BindableProperty TierProperty = BindableProperty.Create(nameof(Tier), typeof(TierModel), typeof(TierView), null);
 
     public TierModel Tier
     {
@@ -17,8 +16,8 @@ public partial class TierView : ContentView
 	{
 		InitializeComponent();
 
-        listItems.ItemsSource = Tier.Items;
+        collectionItems.ItemsSource = Tier?.Items;
 
-        tierLabel.Text = Tier.Name;
+        BindingContext = Tier;
 	}
 }

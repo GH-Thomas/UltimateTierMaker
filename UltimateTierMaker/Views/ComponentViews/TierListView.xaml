@@ -2,8 +2,21 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:components="clr-namespace:UltimateTierMaker.Views.ComponentViews"
+             xmlns:models="clr-namespace:UltimateTierMaker.Models"
+             x:DataType="models:TierList"
              x:Class="UltimateTierMaker.Views.ComponentViews.TierListView">
     <VerticalStackLayout>
-        
+        <CollectionView
+            x:Name="collectionTiers"
+            ItemsSource="{Binding Tiers}"
+            ItemsLayout="VerticalList"
+            VerticalOptions="Fill"
+            HorizontalOptions="Fill">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <components:TierView Tier="{Binding}" />
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
     </VerticalStackLayout>
 </ContentView>

@@ -69,13 +69,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="ViewModels\Item.xaml">
+	  <MauiXaml Update="Views\ComponentViews\ItemView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="ViewModels\Tier.xaml">
+	  <MauiXaml Update="Views\ComponentViews\TierListView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="ViewModels\TierList.xaml">
+	  <MauiXaml Update="Views\ComponentViews\TierView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\HomePage.xaml">

@@ -45,15 +45,19 @@ namespace UltimateTierMaker.Models
         };
 
         internal static TierList tierList1 = new TierList()
-        {   
+        {
             Id = "1",
-            List = new List<Tier> { tier1, tier2, tier3 }
+            Name = "first list",
+            Description = "the first one",
+            Tiers = new List<Tier> { tier1, tier2, tier3 }
         };
 
         internal static TierList tierList2 = new TierList()
         {
             Id = "2",
-            List = new List<Tier> { tier1, tier2, tier3 }
+            Name = "second list",
+            Description = "the second one",
+            Tiers = new List<Tier> { tier1, tier2, tier3 }
         };
 
         internal static List<TierList> _tierLists = new List<TierList>() { tierList1, tierList2 };
@@ -64,7 +68,5 @@ namespace UltimateTierMaker.Models
         {
             return _tierLists.FirstOrDefault(x => x.Id == tierListId);
         }
-
-
     }
 }

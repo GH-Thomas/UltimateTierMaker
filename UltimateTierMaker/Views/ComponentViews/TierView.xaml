@@ -2,23 +2,28 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:components="clr-namespace:UltimateTierMaker.Views.ComponentViews"
+             xmlns:models="clr-namespace:UltimateTierMaker.Models"
+             x:DataType="models:Tier"
              x:Class="UltimateTierMaker.Views.ComponentViews.TierView">
     <HorizontalStackLayout>
         <Label 
-        x:Name="tierLabel"
-        Text="{Binding TierName}"
-        VerticalOptions="Center" 
-        HorizontalOptions="Center" />
-        <ListView
-        x:Name="listItems"
-        BackgroundColor="Black"
-        SeparatorVisibility="None"
-        RowHeight="10">
-            <ListView.ItemTemplate>
+            x:Name="tierLabel"
+            Text="{Binding Name}"
+            VerticalOptions="Center" 
+            HorizontalOptions="Center" />
+        <CollectionView
+            x:Name="collectionItems"
+            ItemsSource="{Binding Items}"
+            ItemsLayout="HorizontalList"
+            BackgroundColor="Black"
+            Margin="10,0,0,0"
+            VerticalOptions="Center"
+            HorizontalScrollBarVisibility="Always"> 
+            <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <components:ItemView Item="{Binding .}" />
+                    <components:ItemView Item="{Binding}" />
                 </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
     </HorizontalStackLayout>
 </ContentView>

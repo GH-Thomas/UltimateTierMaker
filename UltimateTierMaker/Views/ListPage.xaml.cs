@@ -1,15 +1,19 @@
 using UltimateTierMaker.Models;
+using UltimateTierMaker.Views.ComponentViews;
 
 namespace UltimateTierMaker.Views;
 
+
 public partial class ListPage : ContentPage
 {
-	public ListPage()
-	{
-		InitializeComponent();
+    public TierList TierList { get; set; }
 
-		List<TierList> list = TierListRepository.GetTierLists();
+    public ListPage()
+    {
+        TierList = TierListRepository.GetTierListById("1");
 
-		tierList.ItemsSource = list;
-	}
+        BindingContext = TierList;
+
+        InitializeComponent();
+    }
 }
