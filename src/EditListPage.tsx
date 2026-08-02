@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { createItem, type TierList as TierListModel } from './domain/tierList';
-import { tierListRepository } from './repositories/IndexedDbTierListRepository';
+import { createItem } from './domain/tierList';
+import { useTierList } from './hooks/useTierList';
 import Tier from './components/Tier';
 
 const TIER_COLORS = ['#ff7e6b', '#ffb86b', '#ffe96b', '#9ad26d', '#6cc7b8', '#79ace9'];
@@ -9,46 +9,9 @@ const TIER_COLORS = ['#ff7e6b', '#ffb86b', '#ffe96b', '#9ad26d', '#6cc7b8', '#79
 function EditListPage() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const [tierList, setTierList] = useState<TierListModel | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const { tierList, isLoading, error, setTierList } = useTierList(id);
     const [selectedTierIndex, setSelectedTierIndex] = useState(-1);
     const [itemName, setItemName] = useState('');
-
-    useEffect(() => {
-        let isMounted = true;
-
-        const loadTierList = async () => {
-            if (!id) {
-                navigate('/');
-                return;
-            }
-
-            try {
-                const loaded = await tierListRepository.getById(id);
-                if (!loaded) {
-                    navigate('/');
-                    return;
-                }
-
-                if (isMounted) {
-                    setTierList(loaded);
-                }
-            } catch (error) {
-                console.error('Failed to load tier list', error);
-                navigate('/');
-            } finally {
-                if (isMounted) {
-                    setIsLoading(false);
-                }
-            }
-        };
-
-        void loadTierList();
-
-        return () => {
-            isMounted = false;
-        };
-    }, [id, navigate]);
 
     const handleTierSelect = useCallback((index: number) => {
         setSelectedTierIndex(index);
@@ -69,13 +32,12 @@ function EditListPage() {
         selectedTier.items.push(newItem);
 
         try {
-            await tierListRepository.save(updatedTierList);
             setTierList(updatedTierList);
             setItemName('');
         } catch (error) {
             console.error('Failed to add item', error);
         }
-    }, [tierList, selectedTierIndex, itemName]);
+    }, [tierList, selectedTierIndex, itemName, setTierList]);
 
     const handleRemoveItem = useCallback(
         async (tierIndex: number, itemId: string) => {
@@ -92,17 +54,20 @@ function EditListPage() {
             tier.items = tier.items.filter((item) => item.id !== itemId);
 
             try {
-                await tierListRepository.save(updatedTierList);
                 setTierList(updatedTierList);
             } catch (error) {
                 console.error('Failed to remove item', error);
             }
         },
-        [tierList],
+        [tierList, setTierList],
     );
 
     if (isLoading) {
         return <p className="tier-list-loading">Loading tier list...</p>;
+    }
+
+    if (error) {
+        return <p className="tier-list-loading">{error}</p>;
     }
 
     if (!tierList) {

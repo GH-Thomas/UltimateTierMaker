@@ -1,45 +1,12 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createDefaultTierList, type TierList } from './domain/tierList';
-import { tierListRepository } from './repositories/IndexedDbTierListRepository';
+import type { TierList } from './domain/tierList';
+import { useTierLists } from './hooks/useTierLists';
 
 function HomePage() {
     const navigate = useNavigate();
-    const [tierLists, setTierLists] = useState<TierList[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const { tierLists, isLoading, error, setTierLists, createTierList } = useTierLists();
     const [newListName, setNewListName] = useState('');
-
-    useEffect(() => {
-        let isMounted = true;
-
-        const loadTierLists = async () => {
-            try {
-                let loadedTierLists = await tierListRepository.getAll();
-
-                if (loadedTierLists.length === 0) {
-                    const defaultList = createDefaultTierList();
-                    await tierListRepository.save(defaultList);
-                    loadedTierLists = [defaultList];
-                }
-
-                if (isMounted) {
-                    setTierLists(loadedTierLists);
-                }
-            } catch (error) {
-                console.error('Failed to load tier lists', error);
-            } finally {
-                if (isMounted) {
-                    setIsLoading(false);
-                }
-            }
-        };
-
-        void loadTierLists();
-
-        return () => {
-            isMounted = false;
-        };
-    }, []);
 
     const handleCreateNewList = useCallback(async () => {
         if (!newListName.trim()) {
@@ -56,14 +23,18 @@ function HomePage() {
         };
 
         try {
-            await tierListRepository.save(newList);
-            setTierLists([newList, ...tierLists]);
+            const createdList = await createTierList({
+                id: newList.id,
+                name: newList.name,
+                tiers: [],
+            });
+
             setNewListName('');
-            navigate(`/edit/${newList.id}`);
+            navigate(`/edit/${createdList.id}`);
         } catch (error) {
             console.error('Failed to create tier list', error);
         }
-    }, [newListName, tierLists, navigate]);
+    }, [newListName, navigate, createTierList]);
 
     const handleDeleteList = useCallback(
         async (id: string, e: React.MouseEvent) => {
@@ -74,17 +45,20 @@ function HomePage() {
             }
 
             try {
-                await tierListRepository.delete(id);
                 setTierLists(tierLists.filter((list) => list.id !== id));
             } catch (error) {
                 console.error('Failed to delete tier list', error);
             }
         },
-        [tierLists],
+        [tierLists, setTierLists],
     );
 
     if (isLoading) {
         return <p className="tier-list-loading">Loading tier lists...</p>;
+    }
+
+    if (error) {
+        return <p className="tier-list-loading">{error}</p>;
     }
 
     return (

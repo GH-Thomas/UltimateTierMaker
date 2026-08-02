@@ -1,50 +1,17 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { createDefaultTierList, type TierList as TierListModel } from '../domain/tierList';
-import { tierListRepository } from '../repositories/IndexedDbTierListRepository';
+import { useCallback, useMemo, useState } from 'react';
+import { useTierLists } from '../hooks/useTierLists';
 import Tier from './Tier';
 
 const TIER_COLORS = ['#ff7e6b', '#ffb86b', '#ffe96b', '#9ad26d', '#6cc7b8', '#79ace9'];
 
 function TierList() {
-    const [tierLists, setTierLists] = useState<TierListModel[]>([]);
+    const { tierLists, isLoading } = useTierLists();
     const [activeTierListId, setActiveTierListId] = useState<string | null>(null);
     const [selectedIndex, setSelectedIndex] = useState(-1);
-    const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        let isMounted = true;
-
-        const loadTierLists = async () => {
-            try {
-                let loadedTierLists = await tierListRepository.getAll();
-
-                if (loadedTierLists.length === 0) {
-                    const defaultList = createDefaultTierList();
-                    await tierListRepository.save(defaultList);
-                    loadedTierLists = [defaultList];
-                }
-
-                if (!isMounted) {
-                    return;
-                }
-
-                setTierLists(loadedTierLists);
-                setActiveTierListId(loadedTierLists[0]?.id ?? null);
-            } catch (error) {
-                console.error('Failed to initialize tier lists', error);
-            } finally {
-                if (isMounted) {
-                    setIsLoading(false);
-                }
-            }
-        };
-
-        void loadTierLists();
-
-        return () => {
-            isMounted = false;
-        };
-    }, []);
+    useMemo(() => {
+        setActiveTierListId(tierLists[0]?.id ?? null);
+    }, [tierLists]);
 
     const activeTierList = useMemo(() => {
         if (!activeTierListId) {
