@@ -100,4 +100,4 @@ export class IndexedDbTierListRepository implements TierListRepository {
     }
 }
 
-export const tierListRepository: TierListRepository = new IndexedDbTierListRepository();
+export const tierListRepository = new IndexedDbTierListRepository();

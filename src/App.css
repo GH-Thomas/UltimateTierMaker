@@ -115,3 +115,214 @@ body {
 		font-size: 1rem;
 	}
 }
+
+/* HomePage Styles */
+.new-list-section {
+	margin-bottom: 2rem;
+}
+
+.new-list-form {
+	display: flex;
+	gap: 0.75rem;
+	margin-bottom: 1rem;
+}
+
+.new-list-input {
+	flex: 1;
+	padding: 0.75rem 1rem;
+	border: 2px solid #c2c7d1;
+	border-radius: 8px;
+	font-size: 1rem;
+	font-family: inherit;
+	transition: border-color 150ms ease;
+}
+
+.new-list-input:focus {
+	outline: none;
+	border-color: #79ace9;
+	box-shadow: 0 0 0 3px rgba(121, 172, 233, 0.1);
+}
+
+.new-list-button {
+	padding: 0.75rem 1.5rem;
+	background: #79ace9;
+	color: white;
+	border: none;
+	border-radius: 8px;
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 150ms ease, transform 150ms ease;
+}
+
+.new-list-button:hover:not(:disabled) {
+	background: #6099d1;
+	transform: translateY(-1px);
+}
+
+.new-list-button:disabled {
+	background: #c2c7d1;
+	cursor: not-allowed;
+}
+
+.tier-lists-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+	gap: 1.5rem;
+	margin-top: 2rem;
+}
+
+.tier-list-card {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 1.5rem;
+	background: white;
+	border: 2px solid #c2c7d1;
+	border-radius: 12px;
+	cursor: pointer;
+	transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
+}
+
+.tier-list-card:hover {
+	transform: translateY(-4px);
+	box-shadow: 0 12px 24px rgb(0 0 0 / 12%);
+	border-color: #79ace9;
+}
+
+.card-content {
+	flex: 1;
+	min-width: 0;
+}
+
+.card-title {
+	margin: 0 0 0.5rem 0;
+	font-size: 1.25rem;
+	font-weight: 700;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.card-meta {
+	margin: 0;
+	font-size: 0.9rem;
+	color: #6a7080;
+}
+
+.delete-button {
+	flex-shrink: 0;
+	width: 40px;
+	height: 40px;
+	margin-left: 1rem;
+	background: #ff6b6b;
+	color: white;
+	border: none;
+	border-radius: 8px;
+	font-size: 1.5rem;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: background-color 150ms ease;
+}
+
+.delete-button:hover {
+	background: #e63946;
+}
+
+/* EditListPage Styles */
+.back-button {
+	padding: 0.5rem 1rem;
+	background: #f0f0f0;
+	color: #1d1d22;
+	border: 2px solid #c2c7d1;
+	border-radius: 8px;
+	font-size: 1rem;
+	cursor: pointer;
+	margin-bottom: 1.5rem;
+	transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.back-button:hover {
+	background: #e0e0e0;
+	border-color: #79ace9;
+}
+
+.add-item-section {
+	margin-top: 2rem;
+	padding: 1.5rem;
+	background: #f7f8fb;
+	border: 2px solid #c2c7d1;
+	border-radius: 8px;
+}
+
+.add-item-form {
+	display: flex;
+	gap: 0.75rem;
+	margin-bottom: 0.75rem;
+}
+
+.item-name-input {
+	flex: 1;
+	padding: 0.75rem 1rem;
+	border: 2px solid #c2c7d1;
+	border-radius: 8px;
+	font-size: 1rem;
+	font-family: inherit;
+	transition: border-color 150ms ease;
+}
+
+.item-name-input:focus {
+	outline: none;
+	border-color: #79ace9;
+	box-shadow: 0 0 0 3px rgba(121, 172, 233, 0.1);
+}
+
+.add-item-button {
+	padding: 0.75rem 1.5rem;
+	background: #9ad26d;
+	color: white;
+	border: none;
+	border-radius: 8px;
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 150ms ease, transform 150ms ease;
+	white-space: nowrap;
+}
+
+.add-item-button:hover:not(:disabled) {
+	background: #7ec04f;
+	transform: translateY(-1px);
+}
+
+.add-item-button:disabled {
+	background: #c2c7d1;
+	cursor: not-allowed;
+}
+
+.add-item-hint {
+	margin: 0;
+	font-size: 0.9rem;
+	color: #6a7080;
+	text-align: center;
+}
+
+@media (max-width: 680px) {
+	.tier-lists-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.new-list-form {
+		flex-direction: column;
+	}
+
+	.add-item-form {
+		flex-direction: column;
+	}
+
+	.delete-button {
+		margin-left: 0.5rem;
+	}
+}

@@ -36,6 +36,8 @@ function createItem(label: string, seed: string): Item {
     };
 }
 
+export { createItem };
+
 export function createDefaultTierList(): TierList {
     const now = new Date().toISOString();
 
