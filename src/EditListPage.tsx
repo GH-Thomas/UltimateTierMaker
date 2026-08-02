@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { CreateItemDialog, CreateItemSourceDialog, CreateTierDialog } from './components/CreateDialogs';
 import { useTierList } from './hooks/useTierList';
 import Item from './components/Item';
 import Tier from './components/Tier';
@@ -9,46 +10,53 @@ const TIER_COLORS = ['#ff7e6b', '#ffb86b', '#ffe96b', '#9ad26d', '#6cc7b8', '#79
 function EditListPage() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { tierList, isLoading, error, createTier, createItem, deleteItem } = useTierList(id);
+    const { tierList, itemSources, isLoading, error, uploadImage, createTier, createItem, createItemSource, deleteItem } = useTierList(id);
     const [selectedTierIndex, setSelectedTierIndex] = useState(-1);
-    const [tierName, setTierName] = useState('');
-    const [itemName, setItemName] = useState('');
+    const [isCreateTierDialogOpen, setIsCreateTierDialogOpen] = useState(false);
+    const [isCreateItemDialogOpen, setIsCreateItemDialogOpen] = useState(false);
+    const [isCreateItemSourceDialogOpen, setIsCreateItemSourceDialogOpen] = useState(false);
+    const [tierDialogVersion, setTierDialogVersion] = useState(0);
+    const [itemDialogVersion, setItemDialogVersion] = useState(0);
+    const [itemSourceDialogVersion, setItemSourceDialogVersion] = useState(0);
 
     const handleTierSelect = useCallback((index: number) => {
         setSelectedTierIndex(index);
     }, []);
 
-    const handleAddTier = useCallback(async () => {
-        if (!tierName.trim()) {
-            return;
-        }
-
+    const handleCreateTier = useCallback(async (payload: Parameters<typeof createTier>[0]) => {
         try {
-            await createTier(tierName.trim());
-            setSelectedTierIndex(tierList?.tiers.length ?? 0);
-            setTierName('');
+            const createdTier = await createTier(payload);
+            const nextTierIndex = [...(tierList?.tiers ?? []), createdTier]
+                .sort((leftTier, rightTier) => {
+                    const orderDifference = leftTier.order - rightTier.order;
+                    if (orderDifference !== 0) {
+                        return orderDifference;
+                    }
+
+                    return leftTier.rank - rightTier.rank;
+                })
+                .findIndex((tier) => tier.id === createdTier.id);
+            setSelectedTierIndex(nextTierIndex);
         } catch (error) {
             console.error('Failed to add tier', error);
         }
-    }, [createTier, tierList, tierName]);
+    }, [createTier, tierList]);
 
-    const handleAddItem = useCallback(async () => {
-        if (!tierList || selectedTierIndex < 0 || !itemName.trim()) {
-            return;
-        }
-
-        const selectedTier = tierList.tiers[selectedTierIndex];
-        if (!selectedTier) {
-            return;
-        }
-
+    const handleCreateItem = useCallback(async (payload: Parameters<typeof createItem>[0]) => {
         try {
-            await createItem(itemName.trim(), selectedTier.id);
-            setItemName('');
+            await createItem(payload);
         } catch (error) {
             console.error('Failed to add item', error);
         }
-    }, [createItem, itemName, selectedTierIndex, tierList]);
+    }, [createItem]);
+
+    const handleCreateItemSource = useCallback(async (payload: Parameters<typeof createItemSource>[0]) => {
+        try {
+            await createItemSource(payload);
+        } catch (error) {
+            console.error('Failed to add item source', error);
+        }
+    }, [createItemSource]);
 
     const handleRemoveItem = useCallback(
         async (tierIndex: number, itemId: string) => {
@@ -109,29 +117,25 @@ function EditListPage() {
 
             <h1 className="tier-list-title">{tierList.name}</h1>
 
-            <div className="add-tier-section">
-                <div className="add-item-form">
-                    <input
-                        className="item-name-input"
-                        type="text"
-                        placeholder="Enter tier name"
-                        value={tierName}
-                        onChange={(e) => setTierName(e.target.value)}
-                        onKeyPress={(e) => {
-                            if (e.key === 'Enter') {
-                                handleAddTier();
-                            }
-                        }}
-                    />
-                    <button
-                        className="add-tier-button"
-                        onClick={handleAddTier}
-                        type="button"
-                        disabled={!tierName.trim()}
-                    >
-                        Add Tier
-                    </button>
-                </div>
+            <div className="page-actions">
+                <button className="add-tier-button" onClick={() => {
+                    setTierDialogVersion((currentVersion) => currentVersion + 1);
+                    setIsCreateTierDialogOpen(true);
+                }} type="button">
+                    Create Tier
+                </button>
+                <button className="add-item-button" onClick={() => {
+                    setItemDialogVersion((currentVersion) => currentVersion + 1);
+                    setIsCreateItemDialogOpen(true);
+                }} type="button">
+                    Create Item
+                </button>
+                <button className="dialog-secondary-button page-action-secondary" onClick={() => {
+                    setItemSourceDialogVersion((currentVersion) => currentVersion + 1);
+                    setIsCreateItemSourceDialogOpen(true);
+                }} type="button">
+                    Create Item Source
+                </button>
             </div>
 
             <div className="tier-list-board">
@@ -160,29 +164,7 @@ function EditListPage() {
 
             {selectedTier && (
                 <div className="add-item-section">
-                    <div className="add-item-form">
-                        <input
-                            className="item-name-input"
-                            type="text"
-                            placeholder="Enter item name"
-                            value={itemName}
-                            onChange={(e) => setItemName(e.target.value)}
-                            onKeyPress={(e) => {
-                                if (e.key === 'Enter') {
-                                    handleAddItem();
-                                }
-                            }}
-                        />
-                        <button
-                            className="add-item-button"
-                            onClick={handleAddItem}
-                            type="button"
-                            disabled={!itemName.trim()}
-                        >
-                            Add Item to {selectedTier.name}
-                        </button>
-                    </div>
-                    <p className="add-item-hint">Click items to remove them</p>
+                    <p className="add-item-hint">Click items to remove them. Use Create Item to customize the full payload.</p>
                 </div>
             )}
 
@@ -197,6 +179,56 @@ function EditListPage() {
                     <p className="add-item-hint">Create your first tier to start ranking items</p>
                 </div>
             )}
+
+            <section className="source-section">
+                <div className="source-section-header">
+                    <h2 className="unranked-title">Item Sources</h2>
+                    <span className="source-count">{itemSources.length} source{itemSources.length === 1 ? '' : 's'}</span>
+                </div>
+                {itemSources.length === 0 ? (
+                    <p className="add-item-hint">No item sources yet. Create one to reuse it across items.</p>
+                ) : (
+                    <div className="source-grid">
+                        {itemSources.map((source) => (
+                            <article className="source-card" key={source.id}>
+                                <h3 className="source-card-title">{source.name}</h3>
+                                {source.description && <p className="source-card-copy">{source.description}</p>}
+                                {source.link && (
+                                    <a className="source-card-link" href={source.link} rel="noreferrer" target="_blank">
+                                        {source.link}
+                                    </a>
+                                )}
+                            </article>
+                        ))}
+                    </div>
+                )}
+            </section>
+
+            <CreateTierDialog
+                key={tierDialogVersion}
+                isOpen={isCreateTierDialogOpen}
+                onClose={() => setIsCreateTierDialogOpen(false)}
+                defaultRank={tiers.length}
+                onSubmit={handleCreateTier}
+                onUploadImage={uploadImage}
+            />
+            <CreateItemDialog
+                key={itemDialogVersion}
+                isOpen={isCreateItemDialogOpen}
+                onClose={() => setIsCreateItemDialogOpen(false)}
+                tiers={tiers}
+                itemSources={itemSources}
+                defaultTierId={selectedTier?.id}
+                onSubmit={handleCreateItem}
+                onUploadImage={uploadImage}
+            />
+            <CreateItemSourceDialog
+                key={itemSourceDialogVersion}
+                isOpen={isCreateItemSourceDialogOpen}
+                onClose={() => setIsCreateItemSourceDialogOpen(false)}
+                onSubmit={handleCreateItemSource}
+                onUploadImage={uploadImage}
+            />
         </main>
     );
 }

@@ -41,6 +41,15 @@ export function useTierLists() {
     }
   }, []);
 
+  const uploadImage = useCallback(async (file: File) => {
+    const data = await fileToBase64(file);
+
+    return apiClient.createImage({
+      contentType: file.type || 'application/octet-stream',
+      data,
+    });
+  }, []);
+
   const deleteTierList = useCallback(async (id: string) => {
     setIsLoading(true);
     setError(null);
@@ -67,7 +76,22 @@ export function useTierLists() {
     error,
     reload: loadTierLists,
     createTierList,
+    uploadImage,
     deleteTierList,
     setTierLists,
   };
+}
+
+async function fileToBase64(file: Blob) {
+  const buffer = await file.arrayBuffer();
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+
+  const chunkSize = 0x8000;
+  for (let index = 0; index < bytes.length; index += chunkSize) {
+    const chunk = bytes.subarray(index, index + chunkSize);
+    binary += String.fromCharCode(...chunk);
+  }
+
+  return btoa(binary);
 }

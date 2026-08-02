@@ -136,6 +136,30 @@ describe('createTierListApiClient', () => {
     );
   });
 
+  it('uploads images and returns an image reference', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      text: async () => JSON.stringify({ id: 'image-1' }),
+    });
+
+    globalThis.fetch = fetchMock as typeof fetch;
+
+    const client = createTierListApiClient({ baseUrl: 'http://localhost:8000' });
+    const result = await client.createImage({
+      contentType: 'image/png',
+      data: 'ZmFrZQ==',
+    });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://localhost:8000/api/v0/lists/images',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ contentType: 'image/png', data: 'ZmFrZQ==' }),
+      }),
+    );
+    expect(result).toEqual({ id: 'image-1' });
+  });
+
   it('uses the current browser origin when no base url is configured', async () => {
     vi.stubGlobal('window', { location: { origin: 'https://tiermaker.example' } });
 

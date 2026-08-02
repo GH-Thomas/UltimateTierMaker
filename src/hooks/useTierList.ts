@@ -1,17 +1,19 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { TierList } from '../domain/tierList';
-import { createTierListApiClient } from '../api/client';
+import type { Item, ItemSource, Tier, TierList } from '../domain/tierList';
+import { createTierListApiClient, type ItemCreatePayload, type ItemSourceCreatePayload, type TierCreatePayload } from '../api/client';
 
 const apiClient = createTierListApiClient({ baseUrl: import.meta.env.VITE_API_BASE_URL ?? '' });
 
 export function useTierList(id: string | undefined) {
   const [tierList, setTierList] = useState<TierList | null>(null);
+  const [itemSources, setItemSources] = useState<ItemSource[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const loadTierList = useCallback(async () => {
     if (!id) {
       setTierList(null);
+      setItemSources([]);
       setError(null);
       setIsLoading(false);
       return;
@@ -21,8 +23,12 @@ export function useTierList(id: string | undefined) {
     setError(null);
 
     try {
-      const data = await apiClient.getTierList(id);
-      setTierList(data);
+      const [loadedTierList, loadedItemSources] = await Promise.all([
+        apiClient.getTierList(id),
+        apiClient.listItemSources(id),
+      ]);
+      setTierList(loadedTierList);
+      setItemSources(loadedItemSources);
     } catch (err) {
       console.error('Failed to load tier list', err);
       setError(err instanceof Error ? err.message : 'Failed to load tier list');
@@ -35,16 +41,10 @@ export function useTierList(id: string | undefined) {
     void Promise.resolve().then(loadTierList);
   }, [loadTierList]);
 
-  const createTier = useCallback(async (name: string) => {
+  const createTier = useCallback(async (payload: TierCreatePayload) => {
     if (!tierList) {
       throw new Error('Tier list is not loaded');
     }
-
-    const payload = {
-      name,
-      rank: tierList.tiers.length,
-      order: tierList.tiers.length,
-    };
 
     const createdTier = await apiClient.createTier(tierList.id, payload);
     setTierList((current) => {
@@ -54,22 +54,28 @@ export function useTierList(id: string | undefined) {
 
       return {
         ...current,
-        tiers: [...current.tiers, createdTier],
+        tiers: sortTiers([...current.tiers, createdTier]),
       };
     });
 
     return createdTier;
   }, [tierList]);
 
-  const createItem = useCallback(async (name: string, tierId?: string) => {
+  const uploadImage = useCallback(async (file: File) => {
+    const data = await fileToBase64(file);
+
+    return apiClient.createImage({
+      contentType: file.type || 'application/octet-stream',
+      data,
+    });
+  }, []);
+
+  const createItem = useCallback(async (payload: ItemCreatePayload) => {
     if (!tierList) {
       throw new Error('Tier list is not loaded');
     }
 
-    const createdItem = await apiClient.createItem(tierList.id, {
-      name,
-      tierId: tierId ?? null,
-    });
+    const createdItem = await apiClient.createItem(tierList.id, payload);
 
     setTierList((current) => {
       if (!current) {
@@ -79,7 +85,7 @@ export function useTierList(id: string | undefined) {
       if (!createdItem.tierId) {
         return {
           ...current,
-          unrankedItems: [...current.unrankedItems, createdItem],
+          unrankedItems: sortItems([...current.unrankedItems, createdItem]),
         };
       }
 
@@ -87,13 +93,23 @@ export function useTierList(id: string | undefined) {
         ...current,
         tiers: current.tiers.map((tier) => (
           tier.id === createdItem.tierId
-            ? { ...tier, items: [...tier.items, createdItem] }
+            ? { ...tier, items: sortItems([...tier.items, createdItem]) }
             : tier
         )),
       };
     });
 
     return createdItem;
+  }, [tierList]);
+
+  const createItemSource = useCallback(async (payload: ItemSourceCreatePayload) => {
+    if (!tierList) {
+      throw new Error('Tier list is not loaded');
+    }
+
+    const createdItemSource = await apiClient.createItemSource(tierList.id, payload);
+    setItemSources((current) => [...current, createdItemSource]);
+    return createdItemSource;
   }, [tierList]);
 
   const deleteItem = useCallback(async (itemId: string) => {
@@ -120,12 +136,44 @@ export function useTierList(id: string | undefined) {
 
   return {
     tierList,
+    itemSources,
     isLoading,
     error,
     reload: loadTierList,
     setTierList,
+    uploadImage,
     createTier,
     createItem,
+    createItemSource,
     deleteItem,
   };
+}
+
+async function fileToBase64(file: Blob) {
+  const buffer = await file.arrayBuffer();
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+
+  const chunkSize = 0x8000;
+  for (let index = 0; index < bytes.length; index += chunkSize) {
+    const chunk = bytes.subarray(index, index + chunkSize);
+    binary += String.fromCharCode(...chunk);
+  }
+
+  return btoa(binary);
+}
+
+function sortTiers(tiers: Tier[]) {
+  return [...tiers].sort((leftTier, rightTier) => {
+    const orderDifference = leftTier.order - rightTier.order;
+    if (orderDifference !== 0) {
+      return orderDifference;
+    }
+
+    return leftTier.rank - rightTier.rank;
+  });
+}
+
+function sortItems(items: Item[]) {
+  return [...items].sort((leftItem, rightItem) => leftItem.order - rightItem.order);
 }

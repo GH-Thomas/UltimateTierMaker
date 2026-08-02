@@ -5,6 +5,11 @@ type TierListApiClientConfig = {
   fetchImpl?: typeof fetch;
 };
 
+export type ImageCreatePayload = {
+  contentType: string;
+  data: string;
+};
+
 export type TierListCreatePayload = {
   name: string;
   image?: ImageRef | null;
@@ -147,6 +152,7 @@ type ItemSourceReadPayload = {
 export interface TierListApiClient {
   listTierLists(): Promise<TierList[]>;
   getTierList(id: string): Promise<TierList>;
+  createImage(payload: ImageCreatePayload): Promise<ImageRef>;
   createTierList(payload: TierListCreatePayload): Promise<TierList>;
   updateTierList(id: string, payload: TierListUpdatePayload): Promise<TierList>;
   deleteTierList(id: string): Promise<void>;
@@ -196,6 +202,13 @@ export function createTierListApiClient(config: TierListApiClientConfig = {}): T
   };
 
   return {
+    async createImage(payload) {
+      return request<ImageRef>('/api/v0/lists/images', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+    },
+
     async listTierLists() {
       const payload = await request<TierListSummaryReadPayload[]>('/api/v0/lists/tier-lists', {
         method: 'GET',

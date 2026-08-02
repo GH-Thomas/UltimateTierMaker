@@ -1,28 +1,22 @@
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { CreateTierListDialog } from './components/CreateDialogs';
 import { useTierLists } from './hooks/useTierLists';
 
 function HomePage() {
     const navigate = useNavigate();
-    const { tierLists, isLoading, error, createTierList, deleteTierList } = useTierLists();
-    const [newListName, setNewListName] = useState('');
+    const { tierLists, isLoading, error, createTierList, uploadImage, deleteTierList } = useTierLists();
+    const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+    const [createDialogVersion, setCreateDialogVersion] = useState(0);
 
-    const handleCreateNewList = useCallback(async () => {
-        if (!newListName.trim()) {
-            return;
-        }
-
+    const handleCreateNewList = useCallback(async (payload: Parameters<typeof createTierList>[0]) => {
         try {
-            const createdList = await createTierList({
-                name: newListName.trim(),
-            });
-
-            setNewListName('');
+            const createdList = await createTierList(payload);
             navigate(`/edit/${createdList.id}`);
         } catch (error) {
             console.error('Failed to create tier list', error);
         }
-    }, [newListName, navigate, createTierList]);
+    }, [navigate, createTierList]);
 
     const handleDeleteList = useCallback(
         async (id: string, e: React.MouseEvent) => {
@@ -54,28 +48,12 @@ function HomePage() {
             <h1 className="tier-list-title">Tier Lists</h1>
 
             <div className="new-list-section">
-                <div className="new-list-form">
-                    <input
-                        className="new-list-input"
-                        type="text"
-                        placeholder="Enter tier list name"
-                        value={newListName}
-                        onChange={(e) => setNewListName(e.target.value)}
-                        onKeyPress={(e) => {
-                            if (e.key === 'Enter') {
-                                handleCreateNewList();
-                            }
-                        }}
-                    />
-                    <button
-                        className="new-list-button"
-                        onClick={handleCreateNewList}
-                        type="button"
-                        disabled={!newListName.trim()}
-                    >
-                        Create New Tier List
-                    </button>
-                </div>
+                <button className="new-list-button" onClick={() => {
+                    setCreateDialogVersion((currentVersion) => currentVersion + 1);
+                    setIsCreateDialogOpen(true);
+                }} type="button">
+                    Create New Tier List
+                </button>
             </div>
 
             <div className="tier-lists-grid">
@@ -113,6 +91,14 @@ function HomePage() {
                     ))
                 )}
             </div>
+
+            <CreateTierListDialog
+                key={createDialogVersion}
+                isOpen={isCreateDialogOpen}
+                onClose={() => setIsCreateDialogOpen(false)}
+                onSubmit={handleCreateNewList}
+                onUploadImage={uploadImage}
+            />
         </main>
     );
 }
