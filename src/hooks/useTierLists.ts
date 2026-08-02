@@ -41,8 +41,24 @@ export function useTierLists() {
     }
   }, []);
 
+  const deleteTierList = useCallback(async (id: string) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      await apiClient.deleteTierList(id);
+      setTierLists((current) => current.filter((list) => list.id !== id));
+    } catch (err) {
+      console.error('Failed to delete tier list', err);
+      setError(err instanceof Error ? err.message : 'Failed to delete tier list');
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
-    void loadTierLists();
+    void Promise.resolve().then(loadTierLists);
   }, [loadTierLists]);
 
   return {
@@ -51,6 +67,7 @@ export function useTierLists() {
     error,
     reload: loadTierLists,
     createTierList,
+    deleteTierList,
     setTierLists,
   };
 }

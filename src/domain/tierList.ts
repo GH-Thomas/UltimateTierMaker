@@ -1,7 +1,31 @@
+export interface ImageRef {
+    id: string;
+}
+
+export interface ItemSourceRef {
+    id: string;
+}
+
+export interface ItemSource {
+    id: string;
+    name: string;
+    description?: string | null;
+    image?: ImageRef | null;
+    link?: string | null;
+    tierListId: string;
+}
+
 export interface Item {
     id: string;
     label: string;
     imageUrl?: string;
+    nicknames: string[];
+    image?: ImageRef | null;
+    backgroundImage?: ImageRef | null;
+    source?: ItemSource | null;
+    description?: string | null;
+    tierId?: string | null;
+    order: number;
 }
 
 export interface Tier {
@@ -9,65 +33,25 @@ export interface Tier {
     name: string;
     rank: number;
     items: Item[];
+    tierImage?: ImageRef | null;
+    tierColor?: string | null;
+    backgroundImage?: ImageRef | null;
+    backgroundColor?: string | null;
+    tierSize: number;
+    tierSymbol?: ImageRef | null;
+    order: number;
 }
 
 export interface TierList {
     id: string;
     name: string;
     tiers: Tier[];
+    unrankedItems: Item[];
+    image?: ImageRef | null;
+    backgroundImage?: ImageRef | null;
+    backgroundColor?: string | null;
+    description?: string | null;
+    tierSpacing: number;
     createdAt: string;
     updatedAt: string;
-}
-
-function createTier(name: string, rank: number): Tier {
-    return {
-        id: crypto.randomUUID(),
-        name,
-        rank,
-        items: [],
-    };
-}
-
-function createItem(label: string, seed: string): Item {
-    return {
-        id: crypto.randomUUID(),
-        label,
-        imageUrl: `https://picsum.photos/seed/${seed}/144`,
-    };
-}
-
-export { createItem };
-
-export function createDefaultTierList(): TierList {
-    const now = new Date().toISOString();
-
-    return {
-        id: crypto.randomUUID(),
-        name: 'My First Tier List',
-        tiers: [
-            {
-                ...createTier('SS', 0),
-                items: [
-                    createItem('Dragon Slayer', 'dragon-slayer'),
-                    createItem('Aether Knight', 'aether-knight'),
-                ],
-            },
-            {
-                ...createTier('S', 1),
-                items: [
-                    createItem('Frost Archer', 'frost-archer'),
-                    createItem('Blaze Monk', 'blaze-monk'),
-                ],
-            },
-            {
-                ...createTier('A', 2),
-                items: [
-                    createItem('Stone Warden', 'stone-warden'),
-                ],
-            },
-            createTier('B', 3),
-        ],
-        createdAt: now,
-        updatedAt: now,
-    };
 }

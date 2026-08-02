@@ -1,11 +1,10 @@
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { TierList } from './domain/tierList';
 import { useTierLists } from './hooks/useTierLists';
 
 function HomePage() {
     const navigate = useNavigate();
-    const { tierLists, isLoading, error, setTierLists, createTierList } = useTierLists();
+    const { tierLists, isLoading, error, createTierList, deleteTierList } = useTierLists();
     const [newListName, setNewListName] = useState('');
 
     const handleCreateNewList = useCallback(async () => {
@@ -13,20 +12,9 @@ function HomePage() {
             return;
         }
 
-        const now = new Date().toISOString();
-        const newList: TierList = {
-            id: crypto.randomUUID(),
-            name: newListName.trim(),
-            tiers: [],
-            createdAt: now,
-            updatedAt: now,
-        };
-
         try {
             const createdList = await createTierList({
-                id: newList.id,
-                name: newList.name,
-                tiers: [],
+                name: newListName.trim(),
             });
 
             setNewListName('');
@@ -45,12 +33,12 @@ function HomePage() {
             }
 
             try {
-                setTierLists(tierLists.filter((list) => list.id !== id));
+                await deleteTierList(id);
             } catch (error) {
                 console.error('Failed to delete tier list', error);
             }
         },
-        [tierLists, setTierLists],
+        [deleteTierList],
     );
 
     if (isLoading) {
@@ -110,8 +98,7 @@ function HomePage() {
                             <div className="card-content">
                                 <h2 className="card-title">{tierList.name}</h2>
                                 <p className="card-meta">
-                                    Tiers: {tierList.tiers.length} | Items:{' '}
-                                    {tierList.tiers.reduce((sum, tier) => sum + tier.items.length, 0)}
+                                    {tierList.description?.trim() || 'Open to edit this tier list'}
                                 </p>
                             </div>
                             <button

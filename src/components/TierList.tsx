@@ -6,20 +6,11 @@ const TIER_COLORS = ['#ff7e6b', '#ffb86b', '#ffe96b', '#9ad26d', '#6cc7b8', '#79
 
 function TierList() {
     const { tierLists, isLoading } = useTierLists();
-    const [activeTierListId, setActiveTierListId] = useState<string | null>(null);
     const [selectedIndex, setSelectedIndex] = useState(-1);
 
-    useMemo(() => {
-        setActiveTierListId(tierLists[0]?.id ?? null);
-    }, [tierLists]);
-
     const activeTierList = useMemo(() => {
-        if (!activeTierListId) {
-            return null;
-        }
-
-        return tierLists.find((list) => list.id === activeTierListId) ?? null;
-    }, [activeTierListId, tierLists]);
+        return tierLists[0] ?? null;
+    }, [tierLists]);
 
     const tiers = activeTierList?.tiers ?? [];
 

@@ -32,8 +32,91 @@ export function useTierList(id: string | undefined) {
   }, [id]);
 
   useEffect(() => {
-    void loadTierList();
+    void Promise.resolve().then(loadTierList);
   }, [loadTierList]);
+
+  const createTier = useCallback(async (name: string) => {
+    if (!tierList) {
+      throw new Error('Tier list is not loaded');
+    }
+
+    const payload = {
+      name,
+      rank: tierList.tiers.length,
+      order: tierList.tiers.length,
+    };
+
+    const createdTier = await apiClient.createTier(tierList.id, payload);
+    setTierList((current) => {
+      if (!current) {
+        return current;
+      }
+
+      return {
+        ...current,
+        tiers: [...current.tiers, createdTier],
+      };
+    });
+
+    return createdTier;
+  }, [tierList]);
+
+  const createItem = useCallback(async (name: string, tierId?: string) => {
+    if (!tierList) {
+      throw new Error('Tier list is not loaded');
+    }
+
+    const createdItem = await apiClient.createItem(tierList.id, {
+      name,
+      tierId: tierId ?? null,
+    });
+
+    setTierList((current) => {
+      if (!current) {
+        return current;
+      }
+
+      if (!createdItem.tierId) {
+        return {
+          ...current,
+          unrankedItems: [...current.unrankedItems, createdItem],
+        };
+      }
+
+      return {
+        ...current,
+        tiers: current.tiers.map((tier) => (
+          tier.id === createdItem.tierId
+            ? { ...tier, items: [...tier.items, createdItem] }
+            : tier
+        )),
+      };
+    });
+
+    return createdItem;
+  }, [tierList]);
+
+  const deleteItem = useCallback(async (itemId: string) => {
+    if (!tierList) {
+      throw new Error('Tier list is not loaded');
+    }
+
+    await apiClient.deleteItem(tierList.id, itemId);
+    setTierList((current) => {
+      if (!current) {
+        return current;
+      }
+
+      return {
+        ...current,
+        tiers: current.tiers.map((tier) => ({
+          ...tier,
+          items: tier.items.filter((item) => item.id !== itemId),
+        })),
+        unrankedItems: current.unrankedItems.filter((item) => item.id !== itemId),
+      };
+    });
+  }, [tierList]);
 
   return {
     tierList,
@@ -41,5 +124,8 @@ export function useTierList(id: string | undefined) {
     error,
     reload: loadTierList,
     setTierList,
+    createTier,
+    createItem,
+    deleteItem,
   };
 }
